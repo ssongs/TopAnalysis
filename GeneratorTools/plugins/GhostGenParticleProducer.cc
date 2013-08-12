@@ -8,6 +8,8 @@
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/OneToOne.h"
 
 #include "TMath.h"
 
@@ -27,9 +29,12 @@ public:
   ~GhostGenParticleProducer() {};
   void produce(edm::Event& event, const edm::EventSetup& eventSetup);
 
+  typedef edm::AssociationMap<edm::OneToOne<reco::GenParticleCollection, reco::GenParticleCollection> > GenParticleToGenParticleMap;
+
 private:
   bool isBHadron(const reco::Candidate* p); // B hadron without b hadron decendents
   bool isBHadron(const unsigned int absPdgId); // Check |pdgId| to check flavor
+  bool isPartonLevel(const reco::Candidate* p); // True if particle is parton level and hadronized
 
 private:
   edm::InputTag srcLabel_;
@@ -46,6 +51,7 @@ GhostGenParticleProducer::GhostGenParticleProducer(const edm::ParameterSet& pset
 
   produces<reco::GenParticleCollection>();
   produces<std::vector<int> >().setBranchAlias( pset.getParameter<std::string>("@module_label") + "BarCodes" );
+  produces<GenParticleToGenParticleMap>(); // GhostParticle to source particle map, to track up original history
 }
 
 void GhostGenParticleProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
@@ -57,6 +63,7 @@ void GhostGenParticleProducer::produce(edm::Event& event, const edm::EventSetup&
   std::auto_ptr<reco::GenParticleCollection> outGenParticles(new reco::GenParticleCollection());
   std::auto_ptr<std::vector<int> > outGenParticleIndices(new std::vector<int>());
   reco::GenParticleRefProd ref = event.getRefBeforePut<reco::GenParticleCollection>();
+  std::auto_ptr<GenParticleToGenParticleMap> ghostToSrcMap(new GenParticleToGenParticleMap);
 
   // Copy GenParticles and ghost B hadrons to output collection
   const double scale = 1e-20;
@@ -80,7 +87,7 @@ void GhostGenParticleProducer::produce(edm::Event& event, const edm::EventSetup&
 
     ++nOutGenParticle;
 
-    if ( isBHadron(&pSrc) )
+    if ( isBHadron(&pSrc) or ( doPartonLevel_ and isPartonLevel(&pSrc) ) )
     {
       reco::GenParticle b = p;
 
@@ -99,6 +106,11 @@ void GhostGenParticleProducer::produce(edm::Event& event, const edm::EventSetup&
       srcParticleIndices.push_back(i);
 
       ++nOutGenParticle;
+
+      // Build ghost particle to original particle map
+      reco::GenParticleRef ghostRef(ref, nOutGenParticle-1);
+      reco::GenParticleRef srcRef(ref, nOutGenParticle-2);
+      ghostToSrcMap->insert(ghostRef, srcRef);
     }
   }
 
@@ -125,6 +137,7 @@ void GhostGenParticleProducer::produce(edm::Event& event, const edm::EventSetup&
 
   event.put(outGenParticles);
   event.put(outGenParticleIndices);
+  event.put(ghostToSrcMap);
 }
 
 bool GhostGenParticleProducer::isBHadron(const reco::Candidate* p)
@@ -162,6 +175,16 @@ bool GhostGenParticleProducer::isBHadron(const unsigned int absPdgId)
   if ( nq1 == 5 ) return true; // B baryons
 
   return false;
+}
+
+bool GhostGenParticleProducer::isPartonLevel(const reco::Candidate* p)
+{
+  if ( p->status() != 3 ) return false;
+  for ( int i=0, n=p->numberOfDaughters(); i<n; ++i )
+  {
+    if ( p->status() == 3 ) return false;
+  }
+  return true;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
