@@ -15,6 +15,7 @@
 
 #include <memory>
 #include <vector>
+#include <set>
 
 using namespace std;
 using namespace edm;
@@ -40,6 +41,7 @@ private:
   edm::InputTag srcLabel_;
   int userPdgId_;
   bool doPartonLevel_;
+  std::set<unsigned int> partonIdsToVeto_;
 
 };
 
@@ -48,6 +50,14 @@ GhostGenParticleProducer::GhostGenParticleProducer(const edm::ParameterSet& pset
   srcLabel_ = pset.getParameter<edm::InputTag>("src");
   userPdgId_ = pset.getUntrackedParameter<int>("userPdgId", 0);
   doPartonLevel_ = pset.getParameter<bool>("doPartonLevel");
+  if ( doPartonLevel_ )
+  {
+    std::vector<unsigned int> partonIdsToVeto = pset.getParameter<std::vector<unsigned int> >("partonIdsToVeto");
+    for ( int i=0, n=partonIdsToVeto.size(); i<n; ++i )
+    {
+      partonIdsToVeto_.insert(partonIdsToVeto[i]);
+    }
+  }
 
   produces<reco::GenParticleCollection>();
   produces<std::vector<int> >().setBranchAlias( pset.getParameter<std::string>("@module_label") + "BarCodes" );
@@ -183,6 +193,7 @@ bool GhostGenParticleProducer::isPartonLevel(const reco::Candidate* p)
   for ( int i=0, n=p->numberOfDaughters(); i<n; ++i )
   {
     if ( p->status() == 3 ) return false;
+    if ( partonIdsToVeto_.find(p->pdgId()) != partonIdsToVeto_.end() ) return false;
   }
   return true;
 }
