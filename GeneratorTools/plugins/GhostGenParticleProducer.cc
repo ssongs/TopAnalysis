@@ -33,9 +33,9 @@ public:
   typedef edm::AssociationMap<edm::OneToOne<reco::GenParticleCollection, reco::GenParticleCollection> > GenParticleToGenParticleMap;
 
 private:
-  bool isBHadron(const reco::Candidate* p); // B hadron without b hadron decendents
-  bool isBHadron(const unsigned int absPdgId); // Check |pdgId| to check flavor
-  bool isPartonLevel(const reco::Candidate* p); // True if particle is parton level and hadronized
+  bool isBHadron(const reco::Candidate* p) const; // B hadron without b hadron decendents
+  bool isBHadron(const unsigned int absPdgId) const; // Check |pdgId| to check flavor
+  bool isPartonLevel(const reco::Candidate* p) const; // True if particle is parton level and hadronized
 
 private:
   edm::InputTag srcLabel_;
@@ -150,7 +150,7 @@ void GhostGenParticleProducer::produce(edm::Event& event, const edm::EventSetup&
   event.put(ghostToSrcMap);
 }
 
-bool GhostGenParticleProducer::isBHadron(const reco::Candidate* p)
+bool GhostGenParticleProducer::isBHadron(const reco::Candidate* p) const
 {
   const unsigned int absPdgId = abs(p->pdgId());
   if ( !isBHadron(absPdgId) ) return false;
@@ -166,7 +166,7 @@ bool GhostGenParticleProducer::isBHadron(const reco::Candidate* p)
   return true;
 }
 
-bool GhostGenParticleProducer::isBHadron(const unsigned int absPdgId)
+bool GhostGenParticleProducer::isBHadron(const unsigned int absPdgId) const
 {
   if ( doPartonLevel_ and absPdgId == 5 ) return true; // select b quarks if "doPartonLevel" is set
 
@@ -187,7 +187,7 @@ bool GhostGenParticleProducer::isBHadron(const unsigned int absPdgId)
   return false;
 }
 
-bool GhostGenParticleProducer::isPartonLevel(const reco::Candidate* p)
+bool GhostGenParticleProducer::isPartonLevel(const reco::Candidate* p) const
 {
   if ( p->status() != 3 ) return false;
   for ( int i=0, n=p->numberOfDaughters(); i<n; ++i )
