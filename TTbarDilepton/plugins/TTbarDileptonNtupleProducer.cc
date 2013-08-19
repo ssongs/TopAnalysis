@@ -41,11 +41,11 @@
 
 using namespace std;
 
-class EventTupleProducer : public edm::EDAnalyzer
+class TTbarDileptonNtupleProducer : public edm::EDAnalyzer
 {
 public:
-  EventTupleProducer(const edm::ParameterSet& pset);
-  ~EventTupleProducer();
+  TTbarDileptonNtupleProducer(const edm::ParameterSet& pset);
+  ~TTbarDileptonNtupleProducer();
 
   //void beginJob();
   void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& eventSetup);
@@ -106,7 +106,7 @@ private:
 
 };
 
-EventTupleProducer::EventTupleProducer(const edm::ParameterSet& pset)
+TTbarDileptonNtupleProducer::TTbarDileptonNtupleProducer(const edm::ParameterSet& pset)
 {
   doMCMatch_ = pset.getParameter<bool>("doMCMatch");
 
@@ -186,11 +186,11 @@ EventTupleProducer::EventTupleProducer(const edm::ParameterSet& pset)
 
 }
 
-EventTupleProducer::~EventTupleProducer()
+TTbarDileptonNtupleProducer::~TTbarDileptonNtupleProducer()
 {
 }
 
-void EventTupleProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& eventSetup)
+void TTbarDileptonNtupleProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& eventSetup)
 {
   for ( int i=0, n=eventCounterLabels_.size(); i<n; ++i )
   {
@@ -202,7 +202,7 @@ void EventTupleProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi, 
   }
 }
 
-void EventTupleProducer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup)
+void TTbarDileptonNtupleProducer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup)
 {
   using namespace std;
 
@@ -390,5 +390,5 @@ void EventTupleProducer::analyze(const edm::Event& event, const edm::EventSetup&
   genTree_->Fill();
 }
 
-DEFINE_FWK_MODULE(EventTupleProducer);
+DEFINE_FWK_MODULE(TTbarDileptonNtupleProducer);
 
