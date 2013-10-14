@@ -4,22 +4,22 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "AnalysisDataFormats/CMGTools/interface/BaseJet.h"
-#include "AnalysisDataFormats/CMGTools/interface/PFJet.h"
-#include "AnalysisDataFormats/CMGTools/interface/BaseMET.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+
 #include "DataFormats/Common/interface/View.h"
 
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/PtComparator.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include <memory>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "AnalysisDataFormats/CMGTools/interface/GenericTypes.h"
 #include <TH1F.h>
 #include <TH2F.h>
 
@@ -46,7 +46,7 @@ private:
   std::vector<edm::InputTag> overlapCandLabels_;
 
   JetCorrectionUncertainty *jecUncCalculator_;
-  StringCutObjectSelector<cmg::PFJet, true>* isGoodJet_;
+  StringCutObjectSelector<pat::Jet, true>* isGoodJet_;
   double minPt_, maxEta_;
 
   int cleanMethod_;
@@ -72,7 +72,7 @@ TopJetSelector::TopJetSelector(const edm::ParameterSet& pset)
   // Selection cuts
   edm::ParameterSet selectionPSet = pset.getParameter<edm::ParameterSet>("selection");
   std::string jetCut = selectionPSet.getParameter<std::string>("cut");
-  isGoodJet_ = new StringCutObjectSelector<cmg::PFJet, true>(jetCut);
+  isGoodJet_ = new StringCutObjectSelector<pat::Jet, true>(jetCut);
   minPt_ = selectionPSet.getParameter<double>("minPt");
   maxEta_ = selectionPSet.getParameter<double>("maxEta");
 
@@ -94,12 +94,12 @@ TopJetSelector::TopJetSelector(const edm::ParameterSet& pset)
   minNumber_ = pset.getParameter<unsigned int>("minNumber");
   maxNumber_ = pset.getParameter<unsigned int>("maxNumber");
 
-  produces<std::vector<cmg::PFJet> >("jet");
-  produces<std::vector<cmg::PFJet> >("jetUp");
-  produces<std::vector<cmg::PFJet> >("jetDn");
-  produces<std::vector<cmg::BaseMET> >("met");
-  produces<std::vector<cmg::BaseMET> >("metUp");
-  produces<std::vector<cmg::BaseMET> >("metDn");
+  produces<std::vector<pat::Jet> >("jet");
+  produces<std::vector<pat::Jet> >("jetUp");
+  produces<std::vector<pat::Jet> >("jetDn");
+  produces<std::vector<pat::MET> >("met");
+  produces<std::vector<pat::MET> >("metUp");
+  produces<std::vector<pat::MET> >("metDn");
 
   if ( debug_ )
   {
@@ -115,18 +115,18 @@ TopJetSelector::TopJetSelector(const edm::ParameterSet& pset)
 
 bool TopJetSelector::filter(edm::Event& event, const edm::EventSetup& eventSetup)
 {
-  edm::Handle<std::vector<cmg::PFJet> > jetHandle;
+  edm::Handle<std::vector<pat::Jet> > jetHandle;
   event.getByLabel(jetLabel_, jetHandle);
 
-  edm::Handle<std::vector<cmg::BaseMET> > metHandle;
+  edm::Handle<std::vector<pat::MET> > metHandle;
   event.getByLabel(metLabel_, metHandle);
 
-  std::auto_ptr<std::vector<cmg::PFJet> > corrJets(new std::vector<cmg::PFJet>());
-  std::auto_ptr<std::vector<cmg::PFJet> > corrJetsUp(new std::vector<cmg::PFJet>());
-  std::auto_ptr<std::vector<cmg::PFJet> > corrJetsDn(new std::vector<cmg::PFJet>());
-  std::auto_ptr<std::vector<cmg::BaseMET> > corrMets(new std::vector<cmg::BaseMET>());
-  std::auto_ptr<std::vector<cmg::BaseMET> > corrMetsUp(new std::vector<cmg::BaseMET>());
-  std::auto_ptr<std::vector<cmg::BaseMET> > corrMetsDn(new std::vector<cmg::BaseMET>());
+  std::auto_ptr<std::vector<pat::Jet> > corrJets(new std::vector<pat::Jet>());
+  std::auto_ptr<std::vector<pat::Jet> > corrJetsUp(new std::vector<pat::Jet>());
+  std::auto_ptr<std::vector<pat::Jet> > corrJetsDn(new std::vector<pat::Jet>());
+  std::auto_ptr<std::vector<pat::MET> > corrMets(new std::vector<pat::MET>());
+  std::auto_ptr<std::vector<pat::MET> > corrMetsUp(new std::vector<pat::MET>());
+  std::auto_ptr<std::vector<pat::MET> > corrMetsDn(new std::vector<pat::MET>());
 
   double metUpX = 0, metUpY = 0;
   double metDnX = 0, metDnY = 0;
@@ -150,7 +150,7 @@ bool TopJetSelector::filter(edm::Event& event, const edm::EventSetup& eventSetup
 
   for ( int i=0, n=jetHandle->size(); i<n; ++i )
   {
-    cmg::PFJet jet = jetHandle->at(i);
+    pat::Jet jet = jetHandle->at(i);
 
     if ( !(*isGoodJet_)(jet) ) continue;
 
@@ -168,7 +168,7 @@ bool TopJetSelector::filter(edm::Event& event, const edm::EventSetup& eventSetup
     metDnX += jetP4.px() - jetDnP4.px();
     metDnY += jetP4.py() - jetDnP4.py();
 
-    cmg::PFJet jetUp = jet, jetDn = jet;
+    pat::Jet jetUp = jet, jetDn = jet;
     jetUp.setP4(jetUpP4);
     jetDn.setP4(jetDnP4);
 
@@ -213,12 +213,12 @@ bool TopJetSelector::filter(edm::Event& event, const edm::EventSetup& eventSetup
   }
 
   const unsigned int nCleanJet = corrJets->size();
-  std::sort(corrJets->begin(), corrJets->end());
-  std::sort(corrJetsUp->begin(), corrJetsDn->end());
-  std::sort(corrJetsDn->begin(), corrJetsDn->end());
+  std::sort(corrJets->begin(), corrJets->end(), GreaterByPt<pat::Jet>());
+  std::sort(corrJetsUp->begin(), corrJetsDn->end(), GreaterByPt<pat::Jet>());
+  std::sort(corrJetsDn->begin(), corrJetsDn->end(), GreaterByPt<pat::Jet>());
 
-  cmg::BaseMET met = metHandle->at(0);
-  cmg::BaseMET metUp, metDn;
+  pat::MET met = metHandle->at(0);
+  pat::MET metUp, metDn;
   metUp.setP4(reco::Candidate::LorentzVector(metUpX, metUpY, 0, hypot(metUpX, metUpY)));
   metDn.setP4(reco::Candidate::LorentzVector(metDnX, metDnY, 0, hypot(metDnX, metDnY)));
   corrMets->push_back(met);
@@ -234,7 +234,7 @@ bool TopJetSelector::filter(edm::Event& event, const edm::EventSetup& eventSetup
 
   if ( debug_ and !event.isRealData() )
   {
-    edm::Handle<std::vector<cmg::GenJet> > genJetHandle;
+    edm::Handle<std::vector<reco::GenJet> > genJetHandle;
     event.getByLabel(genJetLabel_, genJetHandle);
 
     edm::Handle<std::vector<reco::GenParticle> > genLeptonHandle;
@@ -243,9 +243,9 @@ bool TopJetSelector::filter(edm::Event& event, const edm::EventSetup& eventSetup
     int nGenJet = 0;
     for ( int i=0, n=genJetHandle->size(); i<n; ++i )
     {
-      const cmg::GenJet& genJet = genJetHandle->at(i);
+      const reco::GenJet& genJet = genJetHandle->at(i);
       if ( genJet.pt() < minPt_ or abs(genJet.eta()) > maxEta_ ) continue;
-      const std::vector<const reco::GenParticle*> genConstituents = genJet.sourcePtr()->get()->getGenConstituents();
+      const std::vector<const reco::GenParticle*> genConstituents = genJet.getGenConstituents();
       if ( genConstituents.size() <= 1 ) continue;
       bool isOverlap = false;
       for ( int j=0, m=genConstituents.size(); j<m; ++j )

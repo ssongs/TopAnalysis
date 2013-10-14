@@ -10,7 +10,6 @@
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
-#include "AnalysisDataFormats/CMGTools/interface/GenericTypes.h"
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/OneToMany.h"
@@ -31,8 +30,7 @@ public:
   void produce(edm::Event& event, const edm::EventSetup& eventSetup);
 
   bool hasMother(const reco::Candidate* p, const reco::Candidate* mother);
-  //typedef edm::AssociationMap<edm::OneToMany<std::vector<reco::GenJet>, reco::GenParticleCollection> > GenJetToGenParticlesMap;
-  typedef edm::AssociationMap<edm::OneToMany<std::vector<cmg::GenJet>, reco::GenParticleCollection> > CMGGenJetToGenParticlesMap;
+  typedef edm::AssociationMap<edm::OneToMany<std::vector<reco::GenJet>, reco::GenParticleCollection> > GenJetToGenParticlesMap;
 
 private:
   edm::InputTag genParticleLabel_;
@@ -77,15 +75,14 @@ GenJetPartonAssociator::GenJetPartonAssociator(const edm::ParameterSet& pset)
   std::vector<unsigned int> pdgIdsToMatch = pset.getParameter<std::vector<unsigned int> >("pdgIdsToMatch");
   for ( int i=0, n=pdgIdsToMatch.size(); i<n; ++i ) pdgIdsToMatch_.insert(pdgIdsToMatch[i]);
 
-  produces<CMGGenJetToGenParticlesMap>();
+  produces<GenJetToGenParticlesMap>();
 }
 
 void GenJetPartonAssociator::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 {
-  std::auto_ptr<CMGGenJetToGenParticlesMap> genJetToGenParticlesMap(new CMGGenJetToGenParticlesMap);
+  std::auto_ptr<GenJetToGenParticlesMap> genJetToGenParticlesMap(new GenJetToGenParticlesMap);
 
-  //edm::Handle<std::vector<reco::GenJet> > genJetHandle;
-  edm::Handle<std::vector<cmg::GenJet> > genJetHandle;
+  edm::Handle<std::vector<reco::GenJet> > genJetHandle;
   event.getByLabel(genJetLabel_, genJetHandle);
 
   edm::Handle<std::vector<reco::GenParticle> > genParticleHandle;
@@ -110,8 +107,7 @@ void GenJetPartonAssociator::produce(edm::Event& event, const edm::EventSetup& e
   for ( int i=0, n=genJetHandle->size(); i<n; ++i )
   {
     std::set<unsigned int> matchedPartons;
-    //const reco::GenJet& genJet = genJetHandle->at(i);
-    const cmg::GenJet& genJet = genJetHandle->at(i);
+    const reco::GenJet& genJet = genJetHandle->at(i);
 
     if ( matchAlgo_ == 1 ) // Algorithm 1 : deltaR (and deltaPt) matching
     {
@@ -129,8 +125,7 @@ void GenJetPartonAssociator::produce(edm::Event& event, const edm::EventSetup& e
     }
     else if ( matchAlgo_ == 2 ) // Algorithm 2 : Jet constituent overlap check
     {
-      //std::vector<const reco::GenParticle*> genConstituents = genJet.getGenConstituents();
-      std::vector<const reco::GenParticle*> genConstituents = (*genJet.sourcePtr())->getGenConstituents();
+      std::vector<const reco::GenParticle*> genConstituents = genJet.getGenConstituents();
       const int nConstituent = genConstituents.size();
       if ( nConstituent < cut_minNConstituent_ ) continue;
 
@@ -175,8 +170,7 @@ void GenJetPartonAssociator::produce(edm::Event& event, const edm::EventSetup& e
     }
     matchedPartons.insert(matchedMothers.begin(), matchedMothers.end());
 
-    //edm::Ref<std::vector<reco::GenJet> > genJetRef(genJetHandle, i);
-    edm::Ref<std::vector<cmg::GenJet> > genJetRef(genJetHandle, i);
+    edm::Ref<std::vector<reco::GenJet> > genJetRef(genJetHandle, i);
     for ( std::set<unsigned int>::const_iterator kIter = matchedPartons.begin(); kIter != matchedPartons.end(); ++kIter )
     {
       edm::Ref<std::vector<reco::GenParticle> > genParticleRef(genParticleHandle, *kIter);

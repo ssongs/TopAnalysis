@@ -1,28 +1,16 @@
 <lcgdict>
-  <class name="edm::RefProd<std::vector<cmg::PFJet> >" />
-  <class name="edm::RefProd<std::vector<cmg::GenJet> >" />
+  <class name="edm::RefProd<std::vector<pat::Jet> >" />
+  <class name="edm::RefProd<std::vector<reco::GenJet> >" />
 
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<cmg::PFJet> >, edm::RefProd<std::vector<reco::GenJet> > >" />
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<cmg::PFJet>,std::vector<reco::GenJet>,unsigned int> > >" />
-  <class name="edm::AssociationMap<edm::OneToOne<std::vector<cmg::PFJet>, std::vector<reco::GenJet>, unsigned int > >" >
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<pat::Jet> >, edm::RefProd<std::vector<reco::GenJet> > >" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<pat::Jet>,std::vector<reco::GenJet>,unsigned int> > >" />
+  <class name="edm::AssociationMap<edm::OneToOne<std::vector<pat::Jet>, std::vector<reco::GenJet>, unsigned int > >" >
     <field name="transientMap_" transient="true" />
   </class>
 
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::GenJet> >, edm::RefProd<std::vector<reco::GenParticle> > >" />
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::GenJet>, std::vector<reco::GenParticle>,unsigned int> > >" />
   <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::GenJet>, std::vector<reco::GenParticle>,unsigned int> >" >
-    <field name="transientMap_" transient="true" />
-  </class>
-
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<cmg::PFJet> >, edm::RefProd<std::vector<cmg::GenJet> > >" />
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<cmg::PFJet>,std::vector<cmg::GenJet>,unsigned int> > >" />
-  <class name="edm::AssociationMap<edm::OneToOne<std::vector<cmg::PFJet>, std::vector<cmg::GenJet>, unsigned int > >" >
-    <field name="transientMap_" transient="true" />
-  </class>
-
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<cmg::GenJet> >, edm::RefProd<std::vector<reco::GenParticle> > >" />
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<cmg::GenJet>, std::vector<reco::GenParticle>,unsigned int> > >" />
-  <class name="edm::AssociationMap<edm::OneToMany<std::vector<cmg::GenJet>, std::vector<reco::GenParticle>,unsigned int> >" >
     <field name="transientMap_" transient="true" />
   </class>
 </lcgdict>

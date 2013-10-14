@@ -13,7 +13,6 @@
 <use name="SimDataFormats/PileupSummaryInfo" />
 <use name="RecoVertex/VertexTools" />
 
-<use name="AnalysisDataFormats/CMGTools" />
 <use name="TopAnalysis/GeneratorTools" />
 
 <use name="root" />

@@ -13,8 +13,6 @@
 <use name="RecoVertex/VertexTools" />
 <use name="CondFormats/JetMETObjects" />
 
-<use name="AnalysisDataFormats/CMGTools" />
-
 <use name="root" />
 
 <library file="*.cc" name="TopAnalysisRecoSelectorToolsPlugins">

@@ -19,8 +19,7 @@
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositVetos.h"
 #include "DataFormats/PatCandidates/interface/Isolation.h"
-#include "EGamma/EGammaAnalysisTools/interface/ElectronEffectiveArea.h"
-#include "Muon/MuonAnalysisTools/interface/MuonEffectiveArea.h"
+#include "EgammaAnalysis/ElectronTools/interface/ElectronEffectiveArea.h"
 
 #include <memory>
 #include <vector>
@@ -41,8 +40,6 @@ private:
   double getEffectiveArea(const pat::Electron& electron);
   double getEffectiveArea(const pat::Muon& muon);
 
-  MuonEffectiveArea::MuonEffectiveAreaType muonEAType_;
-  MuonEffectiveArea::MuonEffectiveAreaTarget muonEATarget_;
   ElectronEffectiveArea::ElectronEffectiveAreaType electronEAType_;
   ElectronEffectiveArea::ElectronEffectiveAreaTarget electronEATarget_;
 
@@ -75,19 +72,16 @@ PatRelIsoLeptonProducer<Lepton>::PatRelIsoLeptonProducer(const edm::ParameterSet
   if ( coneSize_ == 0.3 )
   {
     electronEAType_ = ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03;
-    muonEAType_ = MuonEffectiveArea::kMuGammaAndNeutralHadronIso03;
   }
   else
   {
     electronEAType_ = ElectronEffectiveArea::kEleGammaAndNeutralHadronIso04;
-    muonEAType_ = MuonEffectiveArea::kMuGammaAndNeutralHadronIso04;
   }
 
   // Set EA target for real data as a default value
   // the module will update this value if input is MC in the event loop.
   // #ISMC_DEPENDENT_PART#
   electronEATarget_ = ElectronEffectiveArea::kEleEAFall11MC; // FIXME : Update to Summer12 if available
-  muonEATarget_ = MuonEffectiveArea::kMuEAFall11MC; // FIXME : Update to Summer12 if available
   // end of #ISMC_DEPENDENT_PART#
 
   produces<std::vector<Lepton> >();
@@ -104,7 +98,6 @@ bool PatRelIsoLeptonProducer<Lepton>::filter(edm::Event& event, const edm::Event
 
     // #ISMC_DEPENDENT_PART#
     electronEATarget_ = ElectronEffectiveArea::kEleEAData2012;
-    muonEATarget_ = MuonEffectiveArea::kMuEAData2012;
     // end of #ISMC_DEPENDENT_PART#
   }
 
@@ -180,7 +173,7 @@ double PatRelIsoLeptonProducer<Lepton>::getEffectiveArea(const pat::Electron& el
 template<typename Lepton>
 double PatRelIsoLeptonProducer<Lepton>::getEffectiveArea(const pat::Muon& muon)
 {
-  return MuonEffectiveArea::GetMuonEffectiveArea(muonEAType_, muon.eta(), muonEATarget_);
+  return 1;
 }
 
 

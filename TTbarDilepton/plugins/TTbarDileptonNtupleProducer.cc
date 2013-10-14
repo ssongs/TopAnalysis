@@ -18,15 +18,10 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/OneToMany.h"
 #include "DataFormats/Common/interface/OneToOne.h"
-#include "AnalysisDataFormats/CMGTools/interface/Electron.h"
-#include "AnalysisDataFormats/CMGTools/interface/Muon.h"
-#include "AnalysisDataFormats/CMGTools/interface/PFJet.h"
-#include "AnalysisDataFormats/CMGTools/interface/BaseMET.h"
-#include "AnalysisDataFormats/CMGTools/interface/GenericTypes.h"
-//#include "DataFormats/PatCandidates/interface/Electron.h"
-//#include "DataFormats/PatCandidates/interface/Muon.h"
-//#include "DataFormats/PatCandidates/interface/Jet.h"
-//#include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 //#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 
@@ -71,9 +66,9 @@ private:
   std::vector<std::string> eventCounterLabels_;
 
   // Cuts
-  StringCutObjectSelector<cmg::Muon, true>* isGoodMuon_;
-  StringCutObjectSelector<cmg::Electron, true>* isGoodElectron_;
-  StringCutObjectSelector<cmg::PFJet, true>* isGoodJet_;
+  StringCutObjectSelector<pat::Muon, true>* isGoodMuon_;
+  StringCutObjectSelector<pat::Electron, true>* isGoodElectron_;
+  StringCutObjectSelector<pat::Jet, true>* isGoodJet_;
 
   unsigned int muonMinNumber_, electronMinNumber_;
   unsigned int muonMaxNumber_, electronMaxNumber_;
@@ -121,7 +116,7 @@ TTbarDileptonNtupleProducer::TTbarDileptonNtupleProducer(const edm::ParameterSet
 
   edm::ParameterSet electronPSet = pset.getParameter<edm::ParameterSet>("electron");
   std::string electronCut = electronPSet.getParameter<std::string>("cut");
-  isGoodElectron_ = new StringCutObjectSelector<cmg::Electron, true>(electronCut);
+  isGoodElectron_ = new StringCutObjectSelector<pat::Electron, true>(electronCut);
   electronDz_ = electronPSet.getParameter<double>("dz");
   electronMinNumber_ = electronPSet.getParameter<unsigned int>("minNumber");
   electronMaxNumber_ = electronPSet.getParameter<unsigned int>("maxNumber");
@@ -129,7 +124,7 @@ TTbarDileptonNtupleProducer::TTbarDileptonNtupleProducer(const edm::ParameterSet
 
   edm::ParameterSet muonPSet = pset.getParameter<edm::ParameterSet>("muon");
   std::string muonCut = muonPSet.getParameter<std::string>("cut");
-  isGoodMuon_ = new StringCutObjectSelector<cmg::Muon, true>(muonCut);
+  isGoodMuon_ = new StringCutObjectSelector<pat::Muon, true>(muonCut);
   muonDz_ = muonPSet.getParameter<double>("dz");
   muonMinNumber_ = muonPSet.getParameter<unsigned int>("minNumber");
   muonMaxNumber_ = muonPSet.getParameter<unsigned int>("maxNumber");
@@ -137,7 +132,7 @@ TTbarDileptonNtupleProducer::TTbarDileptonNtupleProducer(const edm::ParameterSet
 
   edm::ParameterSet jetPSet = pset.getParameter<edm::ParameterSet>("jet");
   std::string jetCut = jetPSet.getParameter<std::string>("cut");
-  isGoodJet_ = new StringCutObjectSelector<cmg::PFJet, true>(jetCut);
+  isGoodJet_ = new StringCutObjectSelector<pat::Jet, true>(jetCut);
   jetLeptonDeltaR_ = jetPSet.getParameter<double>("leptonDeltaR");
   jetLabel_ = jetPSet.getParameter<edm::InputTag>("src");
   bTagType_ = jetPSet.getParameter<std::string>("bTagType");
@@ -243,46 +238,44 @@ void TTbarDileptonNtupleProducer::analyze(const edm::Event& event, const edm::Ev
     weightDn_ = *(weightDnHandle.product());
   }
 
-  edm::Handle<std::vector<cmg::Electron> > electronHandle;
+  edm::Handle<std::vector<pat::Electron> > electronHandle;
   event.getByLabel(electronLabel_, electronHandle);
   for ( int i=0, n=electronHandle->size(); i<n; ++i )
   {
-    const cmg::Electron& e = electronHandle->at(i);
+    const pat::Electron& e = electronHandle->at(i);
     if ( !(*isGoodElectron_)(e) ) continue;
-    if ( abs(e.dz(pv.position())) > electronDz_ ) continue;
+    //if ( abs(e.dz(pv.position())) > electronDz_ ) continue;
 
     electrons_.push_back(e.p4());
     electrons_Q_.push_back(e.charge());
-    electrons_Iso_.push_back(e.relIso(0.5, 0, 0.3)); // Default isolation cone size to be checked
+    //electrons_Iso_.push_back(e.relIso(0.5, 0, 0.3)); // Default isolation cone size to be checked
   }
   if ( electrons_.size() < electronMinNumber_ ) return;
   if ( electrons_.size() > electronMaxNumber_ ) return;
 
-  edm::Handle<std::vector<cmg::Muon> > muonHandle;
+  edm::Handle<std::vector<pat::Muon> > muonHandle;
   event.getByLabel(muonLabel_, muonHandle);
   for ( int i=0, n=muonHandle->size(); i<n; ++i )
   {
-    const cmg::Muon& mu = muonHandle->at(i);
+    const pat::Muon& mu = muonHandle->at(i);
     if ( !(*isGoodMuon_)(mu) ) continue;
-    if ( abs(mu.dz(pv.position())) > muonDz_ ) continue;
+    //if ( abs(mu.dz(pv.position())) > muonDz_ ) continue;
 
     muons_.push_back(mu.p4());
     muons_Q_.push_back(mu.charge());
-    muons_Iso_.push_back(mu.relIso(0.5, 0, 0.3)); // Default isolation cone size to be checked
+    //muons_Iso_.push_back(mu.relIso(0.5, 0, 0.3)); // Default isolation cone size to be checked
   }
   if ( muons_.size() < muonMinNumber_ ) return;
   if ( muons_.size() > muonMaxNumber_ ) return;
 
-  edm::Handle<std::vector<cmg::BaseMET> > metHandle;
+  edm::Handle<std::vector<pat::MET> > metHandle;
   event.getByLabel(metLabel_, metHandle);
   met_ = metHandle->at(0).p4();
 
-  //typedef edm::AssociationMap<edm::OneToMany<std::vector<reco::GenJet>, reco::GenParticleCollection> > GenJetToGenParticlesMap;
-  //typedef edm::AssociationMap<edm::OneToOne<std::vector<cmg::PFJet>, std::vector<reco::GenJet> > > RecoToGenJetMap;
-  typedef edm::AssociationMap<edm::OneToMany<std::vector<cmg::GenJet>, reco::GenParticleCollection> > CMGGenJetToGenParticlesMap;
-  typedef edm::AssociationMap<edm::OneToOne<std::vector<cmg::PFJet>, std::vector<cmg::GenJet> > > RecoToCMGGenJetMap;
-  edm::Handle<CMGGenJetToGenParticlesMap> genJetToPartonMapHandle;
-  edm::Handle<RecoToCMGGenJetMap> recoToGenJetMapHandle;
+  typedef edm::AssociationMap<edm::OneToMany<std::vector<reco::GenJet>, reco::GenParticleCollection> > GenJetToGenParticlesMap;
+  typedef edm::AssociationMap<edm::OneToOne<std::vector<pat::Jet>, std::vector<reco::GenJet> > > RecoToGenJetMap;
+  edm::Handle<GenJetToGenParticlesMap> genJetToPartonMapHandle;
+  edm::Handle<RecoToGenJetMap> recoToGenJetMapHandle;
 
   // This while loop runs just for once, a "break" statement must be kept in the end of loop
   // It reduces nested loop
@@ -321,11 +314,11 @@ void TTbarDileptonNtupleProducer::analyze(const edm::Event& event, const edm::Ev
     break;
   }
 
-  edm::Handle<std::vector<cmg::PFJet> > jetHandle;
+  edm::Handle<std::vector<pat::Jet> > jetHandle;
   event.getByLabel(jetLabel_, jetHandle);
   for ( int i=0, n=jetHandle->size(); i<n; ++i )
   {
-    const cmg::PFJet& jet = jetHandle->at(i);
+    const pat::Jet& jet = jetHandle->at(i);
 
     bool isOverlap = false;
     if ( !(*isGoodJet_)(jet) ) continue;
@@ -349,19 +342,18 @@ void TTbarDileptonNtupleProducer::analyze(const edm::Event& event, const edm::Ev
     }
 
     jets_.push_back(jet.p4());
-    jets_bTag_.push_back(jet.btag(bTagType_.c_str()));
+    //jets_bTag_.push_back(jet.btag(bTagType_.c_str()));
 
     int jetMotherId = 0;
 
     while ( doMCMatch_ )
     {
-      edm::Ref<std::vector<cmg::PFJet> > jetRef(jetHandle, i);
-      RecoToCMGGenJetMap::const_iterator recoToGenJet = recoToGenJetMapHandle->find(jetRef);
+      edm::Ref<std::vector<pat::Jet> > jetRef(jetHandle, i);
+      RecoToGenJetMap::const_iterator recoToGenJet = recoToGenJetMapHandle->find(jetRef);
       if ( recoToGenJet == recoToGenJetMapHandle->end() ) break;
 
-      //const edm::Ref<std::vector<reco::GenJet> >& genJet = recoToGenJet->val;
-      const edm::Ref<std::vector<cmg::GenJet> >& genJet = recoToGenJet->val;
-      CMGGenJetToGenParticlesMap::const_iterator genJetToParton = genJetToPartonMapHandle->find(genJet);
+      const edm::Ref<std::vector<reco::GenJet> >& genJet = recoToGenJet->val;
+      GenJetToGenParticlesMap::const_iterator genJetToParton = genJetToPartonMapHandle->find(genJet);
       if ( genJetToParton == genJetToPartonMapHandle->end() ) break;
 
       const edm::RefVector<reco::GenParticleCollection>& genPartons = genJetToParton->val;

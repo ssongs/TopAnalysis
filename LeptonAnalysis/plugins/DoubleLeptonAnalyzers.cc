@@ -17,9 +17,7 @@
 //#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
-#include "AnalysisDataFormats/CMGTools/interface/BaseMET.h"
-#include "EGamma/EGammaAnalysisTools/interface/ElectronEffectiveArea.h"
-#include "Muon/MuonAnalysisTools/interface/MuonEffectiveArea.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -195,7 +193,7 @@ void DoubleLeptonAnalyzer<Lepton1, Lepton2>::analyze(const edm::Event& event, co
   event.getByLabel(lepton2Label_, lepton2Handle);
   const bool isSameLepton = ( lepton1Label_ == lepton2Label_ );
 
-  edm::Handle<edm::View<cmg::BaseMET> > metHandle;
+  edm::Handle<edm::View<pat::MET> > metHandle;
   event.getByLabel(metLabel_, metHandle);
   met_ = metHandle->at(0).pt();
 

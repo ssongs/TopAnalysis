@@ -1,24 +1,22 @@
-#include "AnalysisDataFormats/CMGTools/interface/GenericTypes.h"
-#include "AnalysisDataFormats/CMGTools/interface/PFJet.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/OneToOne.h"
 
-namespace cmg {
-  edm::RefProd<std::vector<cmg::PFJet> > dummy00;
-  edm::RefProd<std::vector<cmg::GenJet> > dummy01;
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+//#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-  // cmg::PFJet -> reco::GenJet mapping
-  edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<cmg::PFJet>,std::vector<reco::GenJet>,unsigned int> > > dummy10;
-  edm::AssociationMap<edm::OneToOne<std::vector<cmg::PFJet>, std::vector<reco::GenJet> > > dummy11;
+namespace pat {
+  edm::RefProd<std::vector<pat::Jet> > dummy00;
+
+  // pat::Jet -> reco::GenJet mapping
+  edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<pat::Jet>,std::vector<reco::GenJet>,unsigned int> > > dummy10;
+  edm::AssociationMap<edm::OneToOne<std::vector<pat::Jet>, std::vector<reco::GenJet> > > dummy11;
+}
+
+namespace reco {
+  edm::RefProd<std::vector<reco::GenJet> > dummy01;
 
   // reco::GenJet -> reco::GenParticle mapping
   edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::GenJet>,std::vector<reco::GenParticle>,unsigned int> > > dummy12;
-
-  // cmg::PFJet -> cmg::GenJet mapping
-  edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<cmg::PFJet>,std::vector<cmg::GenJet>,unsigned int> > > dummy20;
-  edm::AssociationMap<edm::OneToOne<std::vector<cmg::PFJet>, std::vector<cmg::GenJet> > > dummy21;
-
-  // cmg::GenJet -> reco::GenParticle mapping
-  edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<cmg::GenJet>,std::vector<reco::GenParticle>,unsigned int> > > dummy22;
 
 }
