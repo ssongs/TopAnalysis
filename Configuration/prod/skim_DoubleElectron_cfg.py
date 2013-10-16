@@ -11,7 +11,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring())
 process.source.fileNames = [
-    '/store/data/Run2012D/DoubleMu/AOD/16Jan2013-v1/10000/FE22C7C3-9B60-E211-A23B-E0CB4E19F99E.root',
+    '/store/data/Run2012D/DoubleElectron/AOD/22Jan2013-v1/10000/FEED5E9F-6A8F-E211-91C4-00261894391C.root',
 ]
 
 process.out = cms.OutputModule("PoolOutputModule",
@@ -30,11 +30,11 @@ process.outPath = cms.EndPath(process.out)
 process.load("TopAnalysis.Configuration.commonFilters_cff")
 process.load("HLTrigger.HLTfilters.hltHighLevel_cfi")
 process.hltHighLevel.throw = False
-process.hltHighLevel.HLTPaths = ["HLT_Mu17_Mu8_v*", "HLT_Mu17_TkMu8_v*"]
+process.hltHighLevel.HLTPaths = ["HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*",]
 
 process.p = cms.Path(
     process.hltHighLevel
   + process.commonSequenceForData
-  + process.filterDoubleMuSequence
+  + process.filterDoubleElectronSequence
 )
 
