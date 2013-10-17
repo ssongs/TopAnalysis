@@ -17,7 +17,7 @@ process.source.fileNames = [
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string("skim.root"),
     outputCommands = cms.untracked.vstring(
-        "keep *"
+        "keep *",
         "drop *_selectedMuons_*_SKIM",
         "drop *_selectedElectrons_*_SKIM",
         "drop *_z*Cands_*_SKIM",
