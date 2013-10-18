@@ -78,12 +78,12 @@ nJetFilter = cms.EDFilter("CandViewCountFilter",
 commonSequenceForData = cms.Sequence(
     goodOfflinePrimaryVertices
   + noscraping
-  + selectedJets * nJetFilter
+  #+ selectedJets * nJetFilter
 )
 
 commonSequenceForMC = cms.Sequence(
     goodOfflinePrimaryVertices
-  + selectedJets * nJetFilter
+  #+ selectedJets * nJetFilter
 )
 
 filterDoubleMuSequence = cms.Sequence(
