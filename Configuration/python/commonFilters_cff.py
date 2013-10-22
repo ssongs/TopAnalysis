@@ -39,16 +39,19 @@ selectedElectrons = cms.EDFilter("CandViewSelector",
 
 zMuMuCands = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("selectedMuons@+ selectedMuons@-"),
+    checkCharge = cms.bool(False),
     cut = cms.string("10 < mass"),
 )
 
 zElElCands = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("selectedElectrons@+ selectedElectrons@-"),
+    checkCharge = cms.bool(False),
     cut = cms.string("10 < mass"),
 )
 
 zMuElCands = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("selectedMuons@+ selectedElectrons@-"),
+    checkCharge = cms.bool(False),
     cut = cms.string("10 < mass"),
 )
 
