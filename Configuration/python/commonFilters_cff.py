@@ -78,13 +78,16 @@ nJetFilterSingleLepton = cms.EDFilter("CandViewCountFilter",
     minNumber = cms.uint32(3),
 )
 
+nEventsTotal = cms.EDProducer("EventCountProducer")
+
 commonSequenceForData = cms.Sequence(
     goodOfflinePrimaryVertices
   + noscraping
 )
 
 commonSequenceForMC = cms.Sequence(
-    goodOfflinePrimaryVertices
+    nEventsTotal
+  + goodOfflinePrimaryVertices
 )
 
 filterDoubleMuSequence = cms.Sequence(
