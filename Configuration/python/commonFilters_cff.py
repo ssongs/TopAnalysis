@@ -24,7 +24,7 @@ selectedMuons = cms.EDFilter("CandViewSelector",
     cut = cms.string(
         "abs(eta) < 2.6 && pt > 17"
         " && isPFMuon && (isGlobalMuon || isTrackerMuon)"),
-    filter = cms.bool(False),
+    filter = cms.bool(True),
 )
 
 selectedElectrons = cms.EDFilter("CandViewSelector",
@@ -34,7 +34,7 @@ selectedElectrons = cms.EDFilter("CandViewSelector",
       " && gsfTrack.isNonnull"
       #" && passConversionVeto "
       " && gsfTrack.trackerExpectedHitsInner.numberOfHits<=0"),
-    filter = cms.bool(False),
+    filter = cms.bool(True),
 )
 
 zMuMuCands = cms.EDProducer("CandViewShallowCloneCombiner",
@@ -73,20 +73,18 @@ selectedJets = cms.EDFilter("CandViewSelector",
         " && (abs(eta) >= 2.4 || chargedMultiplicity > 0)"),
 )
 
-nJetFilter = cms.EDFilter("CandViewCountFilter",
+nJetFilterSingleLepton = cms.EDFilter("CandViewCountFilter",
     src = cms.InputTag("selectedJets"),
-    minNumber = cms.uint32(2),
+    minNumber = cms.uint32(3),
 )
 
 commonSequenceForData = cms.Sequence(
     goodOfflinePrimaryVertices
   + noscraping
-  #+ selectedJets * nJetFilter
 )
 
 commonSequenceForMC = cms.Sequence(
     goodOfflinePrimaryVertices
-  #+ selectedJets * nJetFilter
 )
 
 filterDoubleMuSequence = cms.Sequence(
@@ -99,4 +97,14 @@ filterDoubleElectronSequence = cms.Sequence(
 
 filterMuEGSequence = cms.Sequence(
     selectedMuons * selectedElectrons * zMuElCands * nZMuElCands
+)
+
+filterSingleMuSequence = cms.Sequence(
+    selectedMuons
+  + selectedJets * nJetFilterSingleLepton
+)
+
+filterSingleElectronSequence = cms.Sequence(
+    selectedElectrons
+  + selectedJets * nJetFilterSingleLepton
 )
