@@ -62,6 +62,39 @@ nZMuMuCands = cms.EDFilter("CandViewCountFilter",
 nZElElCands = nZMuMuCands.clone(src = cms.InputTag("zElElCands"))
 nZMuElCands = nZMuMuCands.clone(src = cms.InputTag("zMuElCands"))
 
+selectedSingleMuon = selectedMuons.clone(
+    cut = cms.string(
+        "abs(eta) < 2.6 && pt > 24 && isPFMuon && isGlobalMuon"
+        " && globalTrack.normalizedChi2 < 10"
+        " && globalTrack.hitPattern.numberOfValidMuonHits > 0"
+        " && numberOfMatchedStations > 1"
+        " && innerTrack.hitPattern.numberOfValidPixelHits > 0"
+        " && track.hitPattern.trackerLayersWithMeasurement > 5"
+    ),
+)
+
+selectedSingleElectron = selectedElectrons.clone(
+    cut = cms.string(
+      "abs(eta) < 2.6 && pt > 27"
+      " && gsfTrack.isNonnull"
+      #" && passConversionVeto "
+      " && gsfTrack.trackerExpectedHitsInner.numberOfHits<=0"
+      " && !(1.4442 < abs(superCluster.eta) && abs(superCluster.eta) < 1.5660)"
+    ),
+)
+
+nMuonFilterSingleLepton = cms.EDFilter("CandViewCountFilter",
+    src = cms.InputTag("selectedSingleMuon"),
+    minNumber = cms.uint32(1),
+    maxNumber = cms.uint32(1),
+)
+
+nElectronFilterSingleLepton = cms.EDFilter("CandViewCountFilter",
+    src = cms.InputTag("selectedSingleElectron"),
+    minNumber = cms.uint32(1),
+    maxNumber = cms.uint32(1),
+)
+
 selectedJets = cms.EDFilter("CandViewSelector",
     src = cms.InputTag("ak5PFJets"),
     cut = cms.string(
@@ -103,11 +136,11 @@ filterMuEGSequence = cms.Sequence(
 )
 
 filterSingleMuSequence = cms.Sequence(
-    selectedMuons
+    selectedSingleMuon * nMuonFilterSingleLepton
   + selectedJets * nJetFilterSingleLepton
 )
 
 filterSingleElectronSequence = cms.Sequence(
-    selectedElectrons
+    selectedSingleElectron * nElectronFilterSingleLepton
   + selectedJets * nJetFilterSingleLepton
 )
